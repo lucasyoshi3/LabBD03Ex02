@@ -9,6 +9,25 @@ CREATE TABLE Cliente(
 	PRIMARY KEY(CPF)
 )
 
+CREATE PROCEDURE sp_cliente (@opcao CHAR(1),@cpf CHAR(11), @nome VARCHAR(100), @email VARCHAR(200), @limite DECIMAL(7,2), @data DATETIME, @saida VARCHAR(50) OUTPUT)
+AS 
+	IF(UPPER(@opcao) = 'I')
+	BEGIN
+		EXEC sp_inserir @cpf, @nome, @email, @limite, @data
+		SET @saida = 'Inserido Com Sucesso'
+	END
+	ELSE IF(UPPER(@opcao) = 'A')
+	BEGIN
+		EXEC sp_atualizar @cpf, @nome, @email, @limite, @data 
+		SET @saida = 'Atualizado Com Sucesso'
+	END
+	ELSE IF(UPPER(@opcao) = 'E')
+	BEGIN
+		EXEC sp_excluir @cpf
+		SET @saida = 'Excluido Com Sucesso'
+	END
+
+
 CREATE PROCEDURE sp_validarCpf (@cpf CHAR(11), @valido BIT OUTPUT)
 AS
 	DECLARE @naoigual BIT, @valido_Pdigito BIT, @valido_Sdigito BIT
@@ -103,6 +122,7 @@ CREATE PROCEDURE sp_inserir (@cpf CHAR(11), @nome VARCHAR(100), @email VARCHAR(2
 AS 
 	DECLARE @valido BIT
 	EXEC sp_validarCpf @cpf, @valido OUTPUT
+	PRINT (@valido)
 	IF(@valido = 1)
 	BEGIN 
 		INSERT INTO Cliente VALUES (@cpf, @nome, @email, @limite, @data)
@@ -138,6 +158,6 @@ AS
 		WHERE CPF = @cpf
 	END
 
-CREATE PROCEDURE sp_exluir (@cpf CHAR(11))
+CREATE PROCEDURE sp_excluir (@cpf CHAR(11))
 AS
 	DELETE FROM Cliente WHERE CPF = @cpf
